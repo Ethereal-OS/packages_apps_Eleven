@@ -3228,24 +3228,50 @@ public class MusicPlaybackService extends Service
          * ready to play, false otherwise
          */
         private boolean setDataSourceImpl(final MediaPlayer player, final String path) {
-            try {
-                player.reset();
-                player.setOnPreparedListener(null);
-                if (path.startsWith("content://")) {
-                    player.setDataSource(mService.get(), Uri.parse(path));
-                } else {
-                    player.setDataSource(path);
-                }
-                player.setAudioAttributes(mAudioAttributes);
-                player.prepare();
-            } catch (final IOException | IllegalArgumentException todo) {
-                // TODO: notify the user why the file couldn't be opened
-                return false;
-            }
-            player.setOnCompletionListener(this);
-            player.setOnErrorListener(this);
-            return true;
-        }
+	    try {
+		player.reset();
+		player.setOnPreparedListener(null);
+
+		if (path.startsWith("content://")) {
+		    Log.d("MusicPlaybackService", "Setting data source from URI: " + path);
+		    player.setDataSource(mService.get(), Uri.parse(path));
+		} else {
+		    Log.d("MusicPlaybackService", "Setting data source from path: " + path);
+		    player.setDataSource(path);
+		}
+
+		player.setAudioAttributes(mAudioAttributes);
+		player.prepare();
+
+	    } catch (final IOException e) {
+		Log.e("MusicPlaybackService", "IOException while setting data source: " + e.getMessage());
+		e.printStackTrace();
+		// TODO: notify the user why the file couldn't be opened
+		return false;
+
+	    } catch (final IllegalArgumentException e) {
+		Log.e("MusicPlaybackService", "IllegalArgumentException while setting data source: " + e.getMessage());
+		e.printStackTrace();
+		// TODO: notify the user why the file couldn't be opened
+		return false;
+
+	    } catch (final IllegalStateException e) {
+		Log.e("MusicPlaybackService", "IllegalStateException while setting data source: " + e.getMessage());
+		e.printStackTrace();
+		// TODO: notify the user why the file couldn't be opened
+		return false;
+
+	    } catch (final Exception e) {
+		Log.e("MusicPlaybackService", "Unexpected exception while setting data source: " + e.getMessage());
+		e.printStackTrace();
+		// TODO: notify the user why the file couldn't be opened
+		return false;
+	    }
+
+	    player.setOnCompletionListener(this);
+	    player.setOnErrorListener(this);
+	    return true;
+	}
 
         /**
          * Set the MediaPlayer to start when this MediaPlayer finishes playback.
